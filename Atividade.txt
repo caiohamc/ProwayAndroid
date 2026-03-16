@@ -1,0 +1,303 @@
+import java.util.Objects.isNull
+import java.util.Scanner
+
+data class Funcionario(val cpf: String?, val nome: String?, val email: String?)
+
+class Empresa(val nome: String) {
+    val funcionarios = mutableListOf<Funcionario>()
+
+    fun cadastrar(funcionario: Funcionario, capgemini: Empresa) {
+        if(capgemini.existe(funcionario.cpf)) {
+            println("Funcionário com CPF ${funcionario.cpf} ja cadastrado!")
+        } else {
+            funcionarios.add(funcionario)
+            println("Funcionário ${funcionario.nome} foi cadastrado(a) com sucesso!")
+        }
+    }
+
+    fun listar() {
+        println("Capgemini possui ${funcionarios.size} funcinario(s)!")
+
+        funcionarios.forEach { funcionario ->
+            println("Cpf: ${funcionario.cpf} | Nome: ${funcionario.nome} | Email: ${funcionario.email}")
+        }
+    }
+
+    fun buscar(cpf: String, imprimir: Boolean): Funcionario? {
+        val funcionario = funcionarios.find { it.cpf == cpf }
+
+        if (funcionario != null) {
+
+            if(imprimir) {
+                println("\nCPF: ${funcionario.cpf}")
+                println("NOME: ${funcionario.nome}")
+                println("EMAIL: ${funcionario.email}")
+            }
+
+            return funcionario
+        } else {
+            println("\nNenhum funcionário com o CPF $cpf foi localizado.")
+        }
+
+        return null
+    }
+
+    fun existe(cpf: String?): Boolean {
+        return funcionarios.any { it.cpf == cpf }
+    }
+
+    fun alterar(cpfEncontrado: String, funcionarioAlterado: Funcionario) {
+        val index = funcionarios.indexOfFirst { it.cpf == cpfEncontrado }
+
+        if (index != -1) {
+            funcionarios[index] = funcionarioAlterado
+        }
+    }
+}
+
+fun main() {
+    val scanner = Scanner(System.`in`)
+    val capgemini = Empresa("Capgemini")
+    var opcao = 0
+
+    do {
+        println("----- Atividade 01 - Curso Android Capgemini 2026 -----")
+        println("1 - Cadastrar")
+        println("2 - Listar")
+        println("3 - Pesquisar")
+        println("4 - Alterar")
+        println("5 - Remover")
+        println("6 - Finalizar")
+
+        println("-------------------------------------------------------")
+        print("Selecione uma opcao: ")
+        opcao = scanner.nextInt()
+        scanner.nextLine()
+        println("-------------------------------------------------------")
+
+        when (opcao) {
+            1 -> {
+                println("> > > > > OPCAO ESCOLHIDA: 1 - Cadastrar ")
+                println()
+
+                print("Informe o CPF (apenas numeros): ")
+                var cpf = scanner.nextLine()
+                while (cpf.isBlank() || !cpf.matches(Regex("^[0-9]{11}$"))) {
+                    println("Cpf invalido. Cpf deve ter 11 digitos e ser composto somente por numeros.")
+                    print("Informe o CPF novamente (apenas numeros): ")
+                    cpf = scanner.nextLine()
+                }
+                println("CPF validado com sucesso!")
+                println()
+
+                print("Informe o NOME (apenas letras): ")
+                var nome = scanner.nextLine()
+                while (nome.isBlank() || !nome.matches(Regex("[a-zA-ZÀ-ÿ\\s]{3,}"))) {
+                    println("Nome invalido. Nome deve ter pelo menos 3 letras e nenhum numero.")
+                    print("Informe o NOME novamente (apenas letras): ")
+                    nome = scanner.nextLine()
+                }
+                println("NOME validado com sucesso!")
+                println()
+
+                print("Informe o EMAIL (exemplo@capgemini.com): ")
+                var email = scanner.nextLine()
+                while (email.isBlank() || !email.matches(Regex("^[a-zA-Z0-9._%+-]+@capgemini\\.com$"))) {
+                    println("Email invalido. Email deve terminar com @capgemini.com.")
+                    print("Informe o EMAIL novamente (exemplo@capgemini.com): ")
+                    email = scanner.nextLine()
+                }
+                println("EMAIL validado com sucesso!")
+                println()
+
+                val funcionario = Funcionario(cpf, nome, email)
+                capgemini.cadastrar(funcionario, capgemini)
+                println("-------------------------------------------------------")
+                println()
+            }
+            2 -> {
+                println("> > > > > OPCAO ESCOLHIDA: 2 - Listar ")
+                println()
+                capgemini.listar()
+                println("-------------------------------------------------------")
+                println()
+            }
+            3 -> {
+                println("> > > > > OPCAO ESCOLHIDA: 3 - Pesquisar ")
+                println()
+                print("Informe o CPF do funcionario: ")
+                var cpf = scanner.nextLine()
+                while (cpf.isBlank() || !cpf.matches(Regex("^[0-9]{11}$"))) {
+                    println("Cpf invalido. Cpf deve ter 11 digitos e ser composto somente por numeros.")
+                    print("Informe o CPF novamente (apenas numeros): ")
+                    cpf = scanner.nextLine()
+                }
+
+                println("CPF validado com sucesso!")
+
+                capgemini.buscar(cpf, true)
+                println("-------------------------------------------------------")
+                println()
+            }
+            4 -> {
+                println("> > > > > OPCAO ESCOLHIDA: 4 - Alterar ")
+                println()
+
+                var cpfEncontrado = encontrarFuncionarioParaAlteracao(scanner)
+
+                if(capgemini.existe(cpfEncontrado)) {
+                    var novoCpf = alterarCpf(scanner)
+                    var novoNome = alterarNome(scanner)
+                    var novoEmail = alterarEmail(scanner)
+
+                    if(isNull(novoCpf) && isNull(novoNome) && isNull(novoEmail)) {
+                        println("Funcionario com o CPF $cpfEncontrado nao sera alterado.")
+                    } else {
+                        var funcionario = capgemini.buscar(cpfEncontrado, false)
+                        var novoFuncionario = Funcionario(novoCpf, novoNome, novoEmail)
+                        var funcionarioAlterado = montarFuncionarioAlterado(funcionario, novoFuncionario)
+                        capgemini.alterar(cpfEncontrado, funcionarioAlterado)
+                    }
+                } else {
+                    println("Nenhum funcionário com o CPF $cpfEncontrado foi localizado.")
+                }
+
+                println("-------------------------------------------------------")
+                println()
+            }
+            5 -> {
+                println("> > > > > OPCAO ESCOLHIDA: 5 - Remover ")
+                println()
+
+                print("Informe o CPF do funcionario: ")
+                var cpfRemover = scanner.nextLine()
+
+                if(capgemini.existe(cpfRemover)) {
+                    capgemini.funcionarios.removeIf { it.cpf == cpfRemover }
+                    println("Funcionário com o CPF $cpfRemover foi removido.")
+                } else {
+                    println("Nenhum funcionário com o CPF $cpfRemover foi localizado.")
+                }
+            }
+            6 -> {
+                println("> > > > > OPCAO ESCOLHIDA: 6 - Finalizar ")
+                println()
+                opcao = 6
+            }
+        }
+    } while (opcao != 6)
+
+    println("GAME OVER")
+}
+
+fun encontrarFuncionarioParaAlteracao(scanner: Scanner): String {
+    print("Informe o CPF atual do funcionario: ")
+    var cpf = scanner.nextLine()
+
+    while (cpf.isBlank() || !cpf.matches(Regex("^[0-9]{11}$"))) {
+        println("Cpf invalido. Cpf deve ter 11 digitos e ser composto somente por numeros.")
+        print("Informe o CPF novamente (apenas numeros): ")
+        cpf = scanner.nextLine()
+    }
+
+    return cpf
+}
+
+fun alterarCpf(scanner: Scanner): String? {
+    print("\nFuncionario encontrado. Gostaria de alterar o CPF deste funcionario ? ( S/N ) ")
+    var alterarCpf = scanner.nextLine()
+
+    while (alterarCpf != "S" && alterarCpf != "N") {
+        println("Resposta invalida. Somente serao aceitos valores S ou N.")
+        print("Gostaria de alterar o CPF ? ( S/N ) ")
+        alterarCpf = scanner.nextLine()
+    }
+
+    if (alterarCpf == "S" ) {
+        print("Informe o novo CPF (apenas numeros): ")
+        var novoCpf = scanner.nextLine()
+        while (novoCpf.isBlank() || !novoCpf.matches(Regex("^[0-9]{11}$"))) {
+            println("Cpf invalido. Cpf deve ter 11 digitos e ser composto somente por numeros.")
+            print("Informe o novo CPF novamente (apenas numeros): ")
+            novoCpf = scanner.nextLine()
+        }
+        println("Novo CPF validado com sucesso!")
+        println()
+
+        return novoCpf
+    }
+
+    if (alterarCpf == "N")
+        println("Cpf do funcionario nao sera alterado.")
+
+    return null
+}
+
+fun alterarNome(scanner: Scanner): String? {
+    print("Gostaria de alterar o NOME deste funcionario ? ( S/N ) ")
+    var alterarNome = scanner.nextLine()
+
+    while (alterarNome != "S" && alterarNome != "N") {
+        println("Resposta invalida. Somente serao aceitos valores S ou N.")
+        print("Gostaria de alterar o NOME ? ( S/N ) ")
+        alterarNome = scanner.nextLine()
+    }
+
+    if (alterarNome == "S" ) {
+        print("Informe o novo NOME (apenas letras): ")
+        var novoNome = scanner.nextLine()
+
+        while (novoNome.isBlank() || !novoNome.matches(Regex("[a-zA-ZÀ-ÿ\\s]{3,}"))) {
+            println("Nome invalido. Nome deve ter pelo menos 3 letras e nenhum numero.")
+            print("Informe o NOME novamente (apenas letras): ")
+            novoNome = scanner.nextLine()
+        }
+        println("Novo NOME validado com sucesso!")
+        println()
+
+        return novoNome
+    }
+
+    if (alterarNome == "N")
+        println("Nome do funcionario nao sera alterado.")
+
+    return null
+}
+
+fun alterarEmail(scanner: Scanner): String? {
+    print("Gostaria de alterar o EMAIL deste funcionario ? ( S/N ) ")
+    var alterarEmail = scanner.nextLine()
+
+    while (alterarEmail != "S" && alterarEmail != "N") {
+        println("Resposta invalida. Somente serao aceitos valores S ou N.")
+        print("Gostaria de alterar o EMAIL ? ( S/N ) ")
+        alterarEmail = scanner.nextLine()
+    }
+
+    if (alterarEmail == "S" ) {
+        print("Informe o novo EMAIL (exemplo@capgemini.com): ")
+        var novoEmail = scanner.nextLine()
+
+        while (novoEmail.isBlank() || !novoEmail.matches(Regex("^[a-zA-Z0-9._%+-]+@capgemini\\.com$"))) {
+            println("Email invalido. Email deve terminar com @capgemini.com.")
+            print("Informe o EMAIL novamente (exemplo@capgemini.com): ")
+            novoEmail = scanner.nextLine()
+        }
+        println("Novo EMAIL validado com sucesso!")
+        println()
+
+        return novoEmail
+    }
+
+    if (alterarEmail == "N")
+        println("Email do funcionario nao sera alterado.")
+
+    return null
+}
+
+fun montarFuncionarioAlterado(funcionario: Funcionario?, novoFuncionario: Funcionario): Funcionario {
+    val cpfAlterado = novoFuncionario.cpf ?: funcionario?.cpf
+    val nomeAlterado = novoFuncionario.nome ?: funcionario?.nome
+    val emailAlterado = novoFuncionario.email ?: funcionario?.email
+    return Funcionario(cpfAlterado, nomeAlterado, emailAlterado)
+}
