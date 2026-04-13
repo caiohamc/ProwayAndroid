@@ -5,4 +5,6 @@
 ### 
 - Cada atividade será disponibilizada em uma branch específica.
 - Até o momento foram passadas duas.
-- Sendo assim, as branchs criadas foram **feature/Atividade01** e **feature/Atividade02**.
+- Sendo assim, as branchs criadas foram
+  - **feature/Atividade01**
+  - **feature/Atividade02**
